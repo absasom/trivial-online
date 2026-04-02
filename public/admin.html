@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 16px;
+    }
+    button {
+      padding: 10px 14px;
+      margin: 6px;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Admin</h1>
+
+  <div class="card">
+    <h2>Control</h2>
+    <div class="row">
+      <button onclick="post('/api/show-question')">Mostrar pregunta</button>
+      <button onclick="post('/api/show-answer')">Mostrar respuesta</button>
+      <button onclick="post('/api/hide')">Ocultar todo</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Puntuación Grupo 1</h2>
+    <div class="row">
+      <button onclick="score(1, 'add')">+1</button>
+      <button onclick="score(1, 'sub')">-1</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Puntuación Grupo 2</h2>
+    <div class="row">
+      <button onclick="score(2, 'add')">+1</button>
+      <button onclick="score(2, 'sub')">-1</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Estado actual</h2>
+    <pre id="state">Cargando...</pre>
+  </div>
+
+  <script>
+    async function post(url) {
+      await fetch(url, { method: 'POST' });
+      refresh();
+    }
+
+    async function score(group, action) {
+      await fetch(`/api/score/${group}/${action}`, { method: 'POST' });
+      refresh();
+    }
+
+    async function refresh() {
+      const resp = await fetch('/api/state');
+      const s = await resp.json();
+      document.getElementById('state').textContent = JSON.stringify(s, null, 2);
+    }
+
+    refresh();
+    setInterval(refresh, 1000);
+  </script>
+</body>
+</html>
