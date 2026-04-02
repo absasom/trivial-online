@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trivial - Jugador o Admin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 20px;
+      text-align: center;
+      background-color: #f7f9fc;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 30px;
+    }
+    button {
+      padding: 16px 24px;
+      font-size: 18px;
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    .btn-player {
+      background-color: #3498db;
+      color: white;
+    }
+    .btn-admin {
+      background-color: #e74c3c;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Trivial para clase / partida</h1>
+  <p>Elige tu rol para entrar al juego.</p>
+
+  <div class="buttons">
+    <button class="btn-player" onclick="location.href='/player'">
+      Entrar como Jugador
+    </button>
+    <button class="btn-admin" onclick="location.href='/admin'">
+      Entrar como Admin
+    </button>
+  </div>
+</body>
+</html>
