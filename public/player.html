@@ -9,34 +9,24 @@
       background: #111;
       color: #fff;
       text-align: center;
-      margin: 0;
-      padding: 20px;
+      padding: 30px;
     }
     h1 {
       color: #ffcc00;
     }
     #pregunta {
-      margin-top: 30px;
+      margin: 30px auto;
       font-size: 28px;
       font-weight: bold;
       color: #00ffcc;
       max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
     }
     #respuesta {
-      margin-top: 20px;
+      margin: 20px auto;
       font-size: 32px;
       font-weight: bold;
       color: #ffcc00;
       max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    #pista {
-      margin: 20px auto;
-      font-size: 20px;
-      color: #00ffcc;
     }
     #marcadores {
       margin-top: 30px;
@@ -47,7 +37,7 @@
 </head>
 <body>
 
-<h1>🎡 Trivial</h1>
+<h1>Trivial</h1>
 
 <!-- Pregunta -->
 <div id="pregunta">Esperando al admin...</div>
@@ -55,10 +45,7 @@
 <!-- Respuesta -->
 <div id="respuesta"></div>
 
-<!-- Pista -->
-<div id="pista"></div>
-
-<!-- Marcadores por grupo (en puntos) -->
+<!-- Marcadores de puntos -->
 <div id="marcadores">
   Grupo 1: <span id="g1">0</span> puntos | 
   Grupo 2: <span id="g2">0</span> puntos
@@ -69,30 +56,27 @@
 const socket = io();
 const preguntaDiv  = document.getElementById("pregunta");
 const respuestaDiv = document.getElementById("respuesta");
-const pistaDiv     = document.getElementById("pista");
 const g1Span       = document.getElementById("g1");
 const g2Span       = document.getElementById("g2");
 
-// Escuchar el estado
 socket.on("estado", (data) => {
-  // Pregunta
-  preguntaDiv.textContent = data.showQuestion ? data.question : "Esperando al admin...";
+  // Mostrar pregunta solo si showQuestion es true
+  if (data.showQuestion) {
+    preguntaDiv.textContent = data.question || "Pregunta vacía";
+  } else {
+    preguntaDiv.textContent = "Esperando al admin...";
+  }
 
-  // Respuesta
+  // Mostrar respuesta solo si showAnswer es true y hay answer
   if (data.showAnswer && data.answer) {
     respuestaDiv.textContent = data.answer;
   } else {
     respuestaDiv.textContent = "";
   }
 
-  // Puntos de grupo
-  g1Span.textContent = data.scores.group1;
-  g2Span.textContent = data.scores.group2;
-});
-
-// Escuchar pista
-socket.on("pista", (texto) => {
-  pistaDiv.textContent = texto;
+  // Actualizar puntos
+  g1Span.textContent = data.scores?.group1 ?? 0;
+  g2Span.textContent = data.scores?.group2 ?? 0;
 });
 </script>
 
