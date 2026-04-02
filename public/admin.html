@@ -10,6 +10,11 @@
       max-width: 900px;
       margin: 40px auto;
       padding: 0 16px;
+      background: #111;
+      color: #fff;
+    }
+    h1 {
+      color: #ffcc00;
     }
     button {
       padding: 10px 14px;
@@ -17,12 +22,22 @@
       border: 0;
       border-radius: 8px;
       cursor: pointer;
+      font-size: 16px;
+    }
+    .btn-show {
+      background: #3498db;
+      color: white;
+    }
+    .btn-hide {
+      background: #e74c3c;
+      color: white;
     }
     .card {
-      border: 1px solid #ddd;
+      border: 1px solid #444;
       border-radius: 12px;
       padding: 20px;
       margin-bottom: 16px;
+      background: #222;
     }
     .row {
       display: flex;
@@ -32,57 +47,120 @@
   </style>
 </head>
 <body>
-  <h1>Admin</h1>
 
-  <div class="card">
-    <h2>Control</h2>
-    <div class="row">
-      <button onclick="post('/api/show-question')">Mostrar pregunta</button>
-      <button onclick="post('/api/show-answer')">Mostrar respuesta</button>
-      <button onclick="post('/api/hide')">Ocultar todo</button>
-    </div>
+<h1>Panel de Admin</h1>
+
+<div class="card">
+  <h2>Control de juego</h2>
+  <div class="row">
+    <button class="btn-show" onclick="mostrarPregunta()">
+      Mostrar pregunta
+    </button>
+    <button class="btn-show" onclick="mostrarRespuesta()">
+      Mostrar respuesta
+    </button>
+    <button class="btn-hide" onclick="ocultarTodo()">
+      Ocultar todo
+    </button>
   </div>
+</div>
 
-  <div class="card">
-    <h2>Puntuación Grupo 1</h2>
-    <div class="row">
-      <button onclick="score(1, 'add')">+1</button>
-      <button onclick="score(1, 'sub')">-1</button>
-    </div>
+<div class="card">
+  <h2>Grupo 1</h2>
+  <div class="row">
+    <button class="btn-show" onclick="sumar(1)">+1</button>
+    <button class="btn-hide" onclick="restar(1)">-1</button>
   </div>
+</div>
 
-  <div class="card">
-    <h2>Puntuación Grupo 2</h2>
-    <div class="row">
-      <button onclick="score(2, 'add')">+1</button>
-      <button onclick="score(2, 'sub')">-1</button>
-    </div>
+<div class="card">
+  <h2>Grupo 2</h2>
+  <div class="row">
+    <button class="btn-show" onclick="sumar(2)">+1</button>
+    <button class="btn-hide" onclick="restar(2)">-1</button>
   </div>
+</div>
 
-  <div class="card">
-    <h2>Estado actual</h2>
-    <pre id="state">Cargando...</pre>
-  </div>
+<div class="card">
+  <h2>Enviar pista</h2>
+  <input id="inpPista" type="text" placeholder="Escribe una pista..." style="width: 200px; padding: 6px; border-radius: 6px; border: 0;">
+  <button class="btn-show" onclick="enviarPista()">Enviar pista</button>
+</div>
 
-  <script>
-    async function post(url) {
-      await fetch(url, { method: 'POST' });
-      refresh();
-    }
+<div class="card">
+  <h2>Estado actual</h2>
+  <pre id="state">-</pre>
+</div>
 
-    async function score(group, action) {
-      await fetch(`/api/score/${group}/${action}`, { method: 'POST' });
-      refresh();
-    }
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
 
-    async function refresh() {
-      const resp = await fetch('/api/state');
-      const s = await resp.json();
-      document.getElementById('state').textContent = JSON.stringify(s, null, 2);
-    }
+// Puedes almacenar aquí el estado actual que ya tienes en el servidor
+let estadoActual = {
+  showQuestion: false,
+  showAnswer: false,
+  question: "",
+  answer: "",
+  scores: { group1: 0, group2: 0 }
+};
 
-    refresh();
-    setInterval(refresh, 1000);
-  </script>
+function enviarEstado() {
+  socket.emit("estado", estadoActual);
+}
+
+function actualizarVista() {
+  document.getElementById("state").textContent = JSON.stringify(estadoActual, null, 2);
+}
+
+function mostrarPregunta() {
+  estadoActual.showQuestion = true;
+  estadoActual.showAnswer   = false;
+  enviarEstado();
+}
+
+function mostrarRespuesta() {
+  estadoActual.showAnswer = true;
+  enviarEstado();
+}
+
+function ocultarTodo() {
+  estadoActual.showQuestion = false;
+  estadoActual.showAnswer   = false;
+  enviarEstado();
+}
+
+function sumar(grupo) {
+  const key = grupo === 1 ? "group1" : "group2";
+  estadoActual.scores[key] += 1;
+  enviarEstado();
+}
+
+function restar(grupo) {
+  const key = grupo === 1 ? "group1" : "group2";
+  estadoActual.scores[key] -= 1;
+  enviarEstado();
+}
+
+function enviarPista() {
+  const texto = document.getElementById("inpPista").value.trim();
+  if (texto !== "") {
+    socket.emit("pista", texto);
+    document.getElementById("inpPista").value = "";
+  }
+}
+
+// Escuchar estado desde el servidor (si usas que el servidor mande el estado inicial)
+socket.on("estado", (data) => {
+  estadoActual = { ...data };
+  actualizarVista();
+});
+
+// Actualizar vista al conectar
+socket.on("connect", () => {
+  actualizarVista();
+});
+</script>
+
 </body>
 </html>
