@@ -1,0 +1,12 @@
+{
+  "name": "trivial-online",
+  "version": "1.0.0",
+  "description": "Juego de trivial con jugador y panel de admin",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
