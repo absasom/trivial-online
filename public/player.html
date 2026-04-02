@@ -47,38 +47,38 @@
 </head>
 <body>
 
-<h1>🎡 Trivial de la Suerte</h1>
+<h1>🎡 Trivial</h1>
 
-<!-- Pregunta: texto normal -->
+<!-- Pregunta -->
 <div id="pregunta">Esperando al admin...</div>
 
-<!-- Respuesta: texto grande (como pista, pero más grande) -->
+<!-- Respuesta -->
 <div id="respuesta"></div>
 
-<!-- Pista debajo -->
+<!-- Pista -->
 <div id="pista"></div>
 
-<!-- Marcadores por grupo -->
+<!-- Marcadores por grupo (en puntos) -->
 <div id="marcadores">
-  Grupo 1: <span id="g1">0</span>€ | 
-  Grupo 2: <span id="g2">0</span>€
+  Grupo 1: <span id="g1">0</span> puntos | 
+  Grupo 2: <span id="g2">0</span> puntos
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io();
-const preguntaDiv = document.getElementById("pregunta");
+const preguntaDiv  = document.getElementById("pregunta");
 const respuestaDiv = document.getElementById("respuesta");
-const pistaDiv = document.getElementById("pista");
-const g1Span = document.getElementById("g1");
-const g2Span = document.getElementById("g2");
+const pistaDiv     = document.getElementById("pista");
+const g1Span       = document.getElementById("g1");
+const g2Span       = document.getElementById("g2");
 
 // Escuchar el estado
 socket.on("estado", (data) => {
-  // Mostrar pregunta o mensaje de espera
+  // Pregunta
   preguntaDiv.textContent = data.showQuestion ? data.question : "Esperando al admin...";
 
-  // Mostrar respuesta solo si el admin muestra la respuesta
+  // Respuesta
   if (data.showAnswer && data.answer) {
     respuestaDiv.textContent = data.answer;
   } else {
