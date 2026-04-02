@@ -51,6 +51,8 @@ const questions = [
   { question: '¿Qué estructura del ojo humano detecta la luz y ayuda a formar las imágenes?', answer: 'Retina' }
 ];
 
+// --- ARRIBA: tu código de express, questions, etc. ---
+
 let currentIndex = 0;
 let state = {
   showQuestion: false,
@@ -60,6 +62,16 @@ let state = {
   scores: { group1: 0, group2: 0 }
 };
 
+// ---- NUEVA FUNCIÓN: elegir pregunta distinta ----
+function elegirPreguntaDiferente(indiceActual) {
+  const indices = questions.map((_, i) => i);
+  const filtros = indices.filter(i => i !== indiceActual);
+  const rand = Math.floor(Math.random() * filtros.length);
+  return filtros[rand];
+}
+
+// ----------------------------------------------------
+
 app.get('/', (req, res) => res.redirect('/player'));
 app.get('/player', (req, res) => res.sendFile(path.join(__dirname, 'public', 'player.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
@@ -67,8 +79,13 @@ app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'adm
 app.get('/api/state', (req, res) => res.json(state));
 
 app.post('/api/show-question', (req, res) => {
+  currentIndex = elegirPreguntaDiferente(currentIndex);
+  state.question = questions[currentIndex].question;
+  state.answer   = questions[currentIndex].answer;
+
   state.showQuestion = true;
-  state.showAnswer = false;
+  state.showAnswer   = false;
+
   res.json(state);
 });
 
@@ -79,7 +96,7 @@ app.post('/api/show-answer', (req, res) => {
 
 app.post('/api/hide', (req, res) => {
   state.showQuestion = false;
-  state.showAnswer = false;
+  state.showAnswer   = false;
   res.json(state);
 });
 
