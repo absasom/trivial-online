@@ -51,33 +51,40 @@
   Grupo 2: <span id="g2">0</span> puntos
 </div>
 
-<script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io();
 const preguntaDiv  = document.getElementById("pregunta");
 const respuestaDiv = document.getElementById("respuesta");
 const g1Span       = document.getElementById("g1");
 const g2Span       = document.getElementById("g2");
 
-socket.on("estado", (data) => {
-  // Mostrar pregunta solo si showQuestion es true
-  if (data.showQuestion) {
-    preguntaDiv.textContent = data.question || "Pregunta vacía";
+async function refresh() {
+  const resp = await fetch('/api/state');
+  const s = await resp.json();
+
+  // Pregunta
+  if (s.showQuestion) {
+    preguntaDiv.textContent = s.question;
   } else {
     preguntaDiv.textContent = "Esperando al admin...";
   }
 
-  // Mostrar respuesta solo si showAnswer es true y hay answer
-  if (data.showAnswer && data.answer) {
-    respuestaDiv.textContent = data.answer;
+  // Respuesta
+  if (s.showAnswer && s.answer) {
+    respuestaDiv.textContent = s.answer;
   } else {
     respuestaDiv.textContent = "";
   }
 
-  // Actualizar puntos
-  g1Span.textContent = data.scores?.group1 ?? 0;
-  g2Span.textContent = data.scores?.group2 ?? 0;
-});
+  // Puntos
+  g1Span.textContent = s.scores.group1;
+  g2Span.textContent = s.scores.group2;
+}
+
+// Cargar una vez al cargar
+refresh();
+
+// Refrescar cada segundo
+setInterval(refresh, 1000);
 </script>
 
 </body>
