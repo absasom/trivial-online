@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jugador</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 0 16px;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Jugador</h1>
+
+  <div class="card">
+    <h2>Pregunta</h2>
+    <p id="question">Esperando al admin...</p>
+  </div>
+
+  <div class="card">
+    <h2>Respuesta</h2>
+    <p id="answer">---</p>
+  </div>
+
+  <div class="card">
+    <h2>Puntos</h2>
+    <p>Grupo 1: <span id="g1">0</span></p>
+    <p>Grupo 2: <span id="g2">0</span></p>
+  </div>
+
+  <script>
+    async function refresh() {
+      const resp = await fetch('/api/state');
+      const s = await resp.json();
+      document.getElementById('question').textContent = s.showQuestion ? s.question : 'Esperando al admin...';
+      document.getElementById('answer').textContent = s.showAnswer ? s.answer : '---';
+      document.getElementById('g1').textContent = s.scores.group1;
+      document.getElementById('g2').textContent = s.scores.group2;
+    }
+
+    refresh();
+    setInterval(refresh, 1000);
+  </script>
+</body>
+</html>
