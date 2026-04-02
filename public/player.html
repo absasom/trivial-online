@@ -1,58 +1,100 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Jugador</title>
+  <meta charset="UTF-8">
+  <title>Trivial - Jugador</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 700px;
-      margin: 40px auto;
-      padding: 0 16px;
-    }
-    .card {
-      border: 1px solid #ddd;
-      border-radius: 12px;
+      background: #111;
+      color: #fff;
+      text-align: center;
+      margin: 0;
       padding: 20px;
-      margin-bottom: 16px;
     }
-    .hidden {
-      display: none;
+    h1 {
+      color: #ffcc00;
+    }
+    #pregunta {
+      margin-top: 30px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #00ffcc;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #respuesta {
+      margin-top: 20px;
+      font-size: 32px;
+      font-weight: bold;
+      color: #ffcc00;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #pista {
+      margin: 20px auto;
+      font-size: 20px;
+      color: #00ffcc;
+    }
+    #marcadores {
+      margin-top: 30px;
+      font-size: 20px;
+      color: #ccc;
     }
   </style>
 </head>
 <body>
-  <h1>Jugador</h1>
 
-  <div class="card">
-    <h2>Pregunta</h2>
-    <p id="question">Esperando al admin...</p>
-  </div>
+<h1>🎡 Trivial de la Suerte</h1>
 
-  <div class="card">
-    <h2>Respuesta</h2>
-    <p id="answer">---</p>
-  </div>
+<!-- Pregunta: texto normal -->
+<div id="pregunta">Esperando al admin...</div>
 
-  <div class="card">
-    <h2>Puntos</h2>
-    <p>Grupo 1: <span id="g1">0</span></p>
-    <p>Grupo 2: <span id="g2">0</span></p>
-  </div>
+<!-- Respuesta: texto grande (como pista, pero más grande) -->
+<div id="respuesta"></div>
 
-  <script>
-    async function refresh() {
-      const resp = await fetch('/api/state');
-      const s = await resp.json();
-      document.getElementById('question').textContent = s.showQuestion ? s.question : 'Esperando al admin...';
-      document.getElementById('answer').textContent = s.showAnswer ? s.answer : '---';
-      document.getElementById('g1').textContent = s.scores.group1;
-      document.getElementById('g2').textContent = s.scores.group2;
-    }
+<!-- Pista debajo -->
+<div id="pista"></div>
 
-    refresh();
-    setInterval(refresh, 1000);
-  </script>
+<!-- Marcadores por grupo -->
+<div id="marcadores">
+  Grupo 1: <span id="g1">0</span>€ | 
+  Grupo 2: <span id="g2">0</span>€
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+const preguntaDiv = document.getElementById("pregunta");
+const respuestaDiv = document.getElementById("respuesta");
+const pistaDiv = document.getElementById("pista");
+const g1Span = document.getElementById("g1");
+const g2Span = document.getElementById("g2");
+
+// Escuchar el estado
+socket.on("estado", (data) => {
+  // Mostrar pregunta o mensaje de espera
+  preguntaDiv.textContent = data.showQuestion ? data.question : "Esperando al admin...";
+
+  // Mostrar respuesta solo si el admin muestra la respuesta
+  if (data.showAnswer && data.answer) {
+    respuestaDiv.textContent = data.answer;
+  } else {
+    respuestaDiv.textContent = "";
+  }
+
+  // Puntos de grupo
+  g1Span.textContent = data.scores.group1;
+  g2Span.textContent = data.scores.group2;
+});
+
+// Escuchar pista
+socket.on("pista", (texto) => {
+  pistaDiv.textContent = texto;
+});
+</script>
+
 </body>
 </html>
